@@ -24,7 +24,7 @@ cname_to_comp(char *cname)
 	}
 	
 	if (hp->h_addrtype != AF_INET ||
-	    hp->h_length != 4){//sizeof(computer)) {
+	    hp->h_length != sizeof(computer)) {
 		pthread_mutex_unlock(&cname_mutex);
 		return -1;
 	}
