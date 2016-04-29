@@ -33,9 +33,13 @@ main(int argc, char *argv[])
 		exit(1);
 
 	/* iterate, echoing all data received until end of file */
-
-	while((len = recv(conn, buff, BUFFSIZE, 0)) > 0)
+     FILE *fp; 
+     fp=fopen("archivo.txt","w+"); 
+	while((len = recv(conn, buff, BUFFSIZE, 0)) > 0){
+          fputs(buff, fp);
 		(void) send(conn, buff, len, 0);
+                                                    }
+    fclose(fp); 
 	send_eof(conn);
 	return 0;
 }
