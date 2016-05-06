@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 	connection	conn;
 	int		len;
 	char		buff[BUFFSIZE];
-
+    while(1){
 	if (argc != 2) {
 		(void) fprintf(stderr, "usage: %s <appnum>\n", argv[0]);
 		exit(1);
@@ -38,8 +38,9 @@ main(int argc, char *argv[])
 	while((len = recv(conn, buff, BUFFSIZE, 0)) > 0){
           fputs(buff, fp);
 		(void) send(conn, buff, len, 0);
-                                                    }
+    }                                     }
     fclose(fp); 
 	send_eof(conn);
+    
 	return 0;
 }
