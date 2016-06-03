@@ -36,10 +36,10 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
-	(void) printf("Ingrese Nombre\n");
+	(void) printf("Ingrese Nombre: \n");
 	len= readln(buff2, BUFFSIZE);
 	cliente=(char*)malloc(sizeof(char)*len);
-	(void) memcpy(cliente, buff2, len);
+	(void) memcpy(cliente, buff2, len-1);
 	buff[len-1]= '\n';
 	(void) printf("El nombre es: %s/n", cliente);
 	/* convert the compname to binary form comp */
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 	
 	len=recvln(conn, buff, BUFFSIZE);
 	servidor=(char*)malloc(sizeof(char)*len);
-	memcpy(servidor, buff,len);
+	memcpy(servidor, buff,len-1);
 	printf("el server se llama: %s\n", servidor);
 	
 	(void) printf("Chat Connection Established.\n"); 

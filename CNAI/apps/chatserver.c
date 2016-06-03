@@ -34,11 +34,11 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
-	(void) printf("Ingrese Nombre\n");
+	(void) printf("Ingrese Nombre:\n");
 	len= readln(buff2, BUFFSIZE);
 	servidor=(char*)malloc(sizeof(char)*len);
-	(void) memcpy(servidor, buff2, len);
-	(void) printf("El nombre es: %s/n", servidor);
+	(void) memcpy(servidor, buff2, len-1);
+	(void) printf("El nombre es:%s/n", servidor);
 
 	(void) printf("Chat Server Waiting For Connection.\n");
 
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
 	len2=recvln(conn, buff,BUFFSIZE);
 	cliente=(char*)malloc(sizeof(char)*len2);
-	memcpy(cliente, buff, len2);
+	memcpy(cliente, buff, len2-1);
 	printf("el cliente se llama:%s\n", cliente);
 	(void) send(conn,buff2, len,0);
 	
