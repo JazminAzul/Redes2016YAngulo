@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <cnaiapi.h>
+#include <string.h>
 
 #define BUFFSIZE		256
 #define INPUT_PROMPT		"Input   > "
@@ -23,13 +24,21 @@ int
 main(int argc, char *argv[])
 {
 	connection	conn;
-	int		len;
+	int		len, len2;
 	char		buff[BUFFSIZE];
-
+	char		buff2[BUFFSIZE];
+	char*		servidor;
+	char*		cliente;
 	if (argc != 2) {
 		(void) fprintf(stderr, "usage: %s <appnum>\n", argv[0]);
 		exit(1);
 	}
+
+	(void) printf("Ingrese Nombre\n");
+	len= readln(buff2, BUFFSIZE);
+	servidor=(char*)malloc(sizeof(char)*len);
+	(void) memcpy(servidor, buff2, len);
+	(void) printf("El nombre es: %s/n", servidor);
 
 	(void) printf("Chat Server Waiting For Connection.\n");
 
@@ -38,19 +47,27 @@ main(int argc, char *argv[])
 	conn = await_contact((appnum) atoi(argv[1]));
 	if (conn < 0)
 		exit(1);
+
+	len2=recvln(conn, buff,BUFFSIZE);
+	cliente=(char*)malloc(sizeof(char)*len2);
+	memcpy(cliente, buff, len2);
+	printf("el cliente se llama:%s\n", cliente);
+	(void) send(conn,buff2, len,0);
 	
 	(void) printf("Chat Connection Established.\n");
 	
 	/* iterate, reading from the client and the local user */
 
+
+
 	while((len = recvln(conn, buff, BUFFSIZE)) > 0) {
-		(void) printf(RECEIVED_PROMPT);
+		(void) printf("%s>", cliente);
 		(void) fflush(stdout);
 		(void) write(STDOUT_FILENO, buff, len);
 		
 		/* send a line to the chatclient */
 
-		(void) printf(INPUT_PROMPT);
+		(void) printf("%s>", servidor);
 		(void) fflush(stdout);
 		if ((len = readln(buff, BUFFSIZE)) < 1)
 			break;

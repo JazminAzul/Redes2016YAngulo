@@ -20,6 +20,7 @@ main(int argc, char *argv[])
 	connection	conn;
 	int		len;
 	char		buff[BUFFSIZE];
+	char		fp;
     while(1){
 	if (argc != 2) {
 		(void) fprintf(stderr, "usage: %s <appnum>\n", argv[0]);
