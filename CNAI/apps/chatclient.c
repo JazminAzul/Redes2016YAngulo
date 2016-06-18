@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cnaiapi.h>
 #include <string.h>
+#include <sys/select.h>
 
 #define BUFFSIZE		256
 #define INPUT_PROMPT		"Input   > "
@@ -30,19 +31,26 @@ main(int argc, char *argv[])
 	int		len;
 	char*		cliente;
 	char*		servidor;
+	struct timeval timer;
+	fd_set readfds;
+	int sret;
+
+
+	printf("Ingrese Nombre: \n");
+	len= readln(buff2, BUFFSIZE);
+
+	cliente=(char*)malloc(sizeof(char)*len);
+	memcpy(cliente, buff2, len-1);
+	buff[len-1]= '\n';
+	printf("El nombre es: %s/n", cliente);
+	
 	if (argc != 3) {
 		(void) fprintf(stderr, "usage: %s <compname> <appnum>\n",
 			       argv[0]);
 		exit(1);
 	}
 
-	(void) printf("Ingrese Nombre: \n");
-	len= readln(buff2, BUFFSIZE);
-	cliente=(char*)malloc(sizeof(char)*len);
-	(void) memcpy(cliente, buff2, len-1);
-	buff[len-1]= '\n';
-	(void) printf("El nombre es: %s/n", cliente);
-	/* convert the compname to binary form comp */
+	/* convert the compname to bynary form comp*/
 
 	comp = cname_to_comp(argv[1]);
 	if (comp == -1)
@@ -67,20 +75,64 @@ main(int argc, char *argv[])
 	
 	/* iterate, reading from local user and then from chatserver */
 
-	while((len = readln(buff, BUFFSIZE)) > 0) {
-		buff[len - 1] = '\n';
-		(void) send(conn, buff, len, 0);
+	while(1){
+		FD_ZERO(&readfds);
+		FD_SET(0, &readfds);
+		FD_SET(conn, &readfds);
 		
-		/* receive and print a line from the chatserver */
-		if ((len = recvln(conn, buff, BUFFSIZE)) < 1)
-			break;
-		(void) printf("%s>", servidor);
-		(void) fflush(stdout);
-		(void) write(STDOUT_FILENO, buff, len);
+		timer.tv_sec = 10;
+		timer.tv_usec= 0;
+		
+		sret= select(conn+1,   &readfds,
+					NULL,
+					NULL,
+					&timer);
 
-		(void) printf("%s>", cliente);
-		(void) fflush(stdout);
+		if (sret == 0){
+			printf("time out\n");
+			break;
+		}
+		else {
+			if (FD_ISSET(0,&readfds)) {
+				if((len=readln(buff,BUFFSIZE))<1)
+					break;
+			}
+
+	/*receive and print a line from the chatserver*/
+
+			if (FD_ISSET(conn,&readfds)){
+				if((len = recvln(conn, buff, BUFFSIZE))<1);
+					break;
+			(void) printf("%s>", servidor);
+			(void) fflush(stdout);
+			(void) write(STDOUT_FILENO, buff, len);
+			}
+		}
 	}
+
+	/* iteration ends when stdin or the connection indicates EOF */
+
+	(void) printf("\n Chat connection Closed.\n");
+	(void) send_eof(conn);
+	exit(0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/* iteration ends when stdin or the connection indicates EOF */
 
